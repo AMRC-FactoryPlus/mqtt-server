@@ -1,0 +1,49 @@
+version: '3.7'
+services:
+  factory-plus-mqtt-central:
+    ports:
+      - target: 8883
+        published: 8883
+        protocol: tcp
+        mode: host
+      - target: 9801
+        published: 9801
+        protocol: tcp
+        mode: host
+    volumes:
+      - mosquitto_persistence:/var/lib/mosquitto/
+      - /etc/ssl/:/etc/mosquitto/certs/
+    image: amrc-factoryplus.***REMOVED***:5000/factory-plus-mqtt-central:3.1.6
+    networks:
+      - factory-plus
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == amrc-factoryP-1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+  shiftr:
+    image: amrc-factoryplus.***REMOVED***:5000/shiftr:1.0.7
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == amrc-factoryP-1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.shiftr.rule=Host(`shiftr.amrc-factoryplus.***REMOVED***`)"
+        - "traefik.docker.network=factory-plus"
+        - "traefik.http.services.shiftr.loadbalancer.server.port=1884"
+        - "traefik.http.routers.shiftr.tls=true"
+        - "traefik.http.middlewares.shiftr-auth.basicauth.users=factoryplus:$$apr1$$dP8ibTle$$CSoNldMCVMQPgQpGRtxxd."
+        - "traefik.http.routers.shiftr.middlewares=shiftr-auth"
+    networks:
+      - factory-plus
+
+volumes:
+  mosquitto_persistence:
+
+networks:
+  factory-plus:
+    external: true
+    name: factory-plus
