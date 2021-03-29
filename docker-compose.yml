@@ -13,7 +13,7 @@ services:
     volumes:
       - mosquitto_persistence:/var/lib/mosquitto/
       - /etc/ssl/:/etc/mosquitto/certs/
-    image: amrc-factoryplus.***REMOVED***:5000/factory-plus-mqtt-central:3.1.6
+    image: amrc-factoryplus.<domain>:5000/factory-plus-mqtt-central:3.1.6
     networks:
       - factory-plus
     deploy:
@@ -24,14 +24,14 @@ services:
         condition: on-failure
         delay: 5s
   shiftr:
-    image: amrc-factoryplus.***REMOVED***:5000/shiftr:1.0.7
+    image: amrc-factoryplus.<domain>:5000/shiftr:1.0.7
     deploy:
       placement:
         constraints:
           - node.hostname == amrc-factoryP-1
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.shiftr.rule=Host(`shiftr.amrc-factoryplus.***REMOVED***`)"
+        - "traefik.http.routers.shiftr.rule=Host(`shiftr.amrc-factoryplus.<domain>`)"
         - "traefik.docker.network=factory-plus"
         - "traefik.http.services.shiftr.loadbalancer.server.port=1884"
         - "traefik.http.routers.shiftr.tls=true"
